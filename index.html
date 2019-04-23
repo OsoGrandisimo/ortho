@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- This is the title displayed on the browser -->
+    <title>Swapp Orthodontics Ultrasonic Fluid Manager</title>
+    <!-- The script src below imports the socket.io library which is used for communication between the browser and BBBw -->
+    <script src = "/socket.io/socket.io.js" > </script>
+    <!-- This is the type of script that is going to be used (javascript) -->
+    <script type=text/javascript src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <!-- This is the javascript that the browser is running (gets information from server to run on browser's computer -->
+    <script>
+        // The var pin declarations determine the pins for devices
+        //P8_8:GPIO_67 :: P8_10:GPIO68 :: P8_12:GPIO_44 :: P8_14:GPIO_26
+        var ledPin = 'P8_8';
+        var motorPin = 'P8_10';
+        var valvePin = 'P8_12';
+        var pumpPin = 'P8_14';
+        
+        // var socket = io.connect establishes the connection between the browser and the BBBw
+        var socket = io.connect();
+        
+        // Handling the pinUpdate command from the server
+        socket.on("pinUpdate", handlePinUpdate);
+        
+        /** handlePinUpdate **/
+        // This function processes updated pin values from the server
+        function handlePinUpdate(message)
+        {
+            alert("In handlePinUpdate");
+            let data = JSON.parse(message);
+            alert("In handlePinUpdate");
+            if(data.pin == ledPin)
+            {
+                $("#ledPinStatus").html("Pin " + ledPin + " Value: " + data[ledPin]);
+            }
+            else if(data.pin == motorPin)
+            {
+                $("#motorPinStatus").html("Pin " + motorPin + " Value: " + data[motorPin]);
+            }
+            else if(data.pin == valvePin)
+            {
+                $("#valvePinStatus").html("Pin " + valvePin + " Value: " + data[valvePin]);
+            }
+            else if(data.pin == pumpPin)
+            {
+                $("#pumpPinStatus").html("Pin " + pumpPin + " Value: " + data[pumpPin]);
+            }
+        }
+        
+        
+        /** systemStop **/
+        // This function shuts down the entire system
+        // Example Use: When the user desires to terminate the entire system (Stop button)
+        function systemStop()
+        {
+            //socket.emit uses the socket.io library to send a message to the BBBw
+            socket.emit('systemStop');
+            alert("Stopping System");
+        }
+        
+        /** systemStart **/
+        // This function starts the system
+        // Parameters required: Device order, run time of device[1:3], wait time between devices
+        // Example Use: User fills out form and hits submit
+        function systemStart()
+        {
+            //Ensure system is off before starting again
+            socket.emit('systemStop');
+            //socket.emit uses the socket.io library to send a message to the BBBw
+            let ledStart = $("#ledStartId").val();
+            let ledDuration = $("#ledDurationId").val();
+            let motorStart = $("#motorStartId").val();
+            let motorDuration = $("#motorDurationId").val();
+            let valveStart = $("#valveStartId").val();
+            let valveDuration = $("#valveDurationId").val();
+            let pumpStart = $("#pumpStartId").val();
+            let pumpDuration = $("#pumpDurationId").val();
+            
+            socket.emit('systemStart',{ledStart: ledStart, ledDuration: ledDuration,
+                motorStart: motorStart, motorDuration: motorDuration,
+                valveStart: valveStart, valveDuration: valveDuration,
+                pumpStart: pumpStart, pumpDuration: pumpDuration});
+            alert("Start system with LED Start Time " + ledStart);
+            alert("The pump duration is " + pumpDuration);
+        }
+        
+    </script>
+    <style>
+        table, th, td {
+            border: 1px solid black; 
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;    
+        }
+    </style>
+</head> 
+ 
+<body>
+    <h1 style="font-size:30pt;">Ultrasonic Scheduler</h1>
+    <!--<h2 style="font-size:30pt;"id="temp">-</h2>-->
+    <!-- This is the device selection and enterable text box code -->
+    <form onsubmit="systemStart()" id="deviceForm">
+        <table style="width:100%">
+        <tr>
+            <th>Component</th>
+            <th>Start Time</th>
+            <th>Duration</th>
+            <th>Status</th>
+        </tr>
+        <tr>
+            <td>LEDs</td>
+            <td><input type="text" name="ledStart" id="ledStartId" value ="5"></td>
+            <td><input type="text" name="ledDuration" id="ledDurationId" value="15"></td>
+            <td><p id="ledStatusPin">-</p></td>
+        </tr>
+        <tr>
+            <td>Motor</td>
+            <td><input type="text" name="motorStart" id="motorStartId" value="0"></td>
+            <td><input type="text" name="motorDuration" id="motorDurationId" value="5"></td>
+            <td><p id="motorStatusPin">-</p></td>
+        </tr>
+        <tr>
+            <td>Valve</td>
+            <td><input type="text" name="valveStart" id="valveStartId" value="5"></td>
+            <td><input type="text" name="valveDuration" id="valveDurationId"value="0.5"></td>
+            <td><p id="valveStatusPin">-</p></td>
+        </tr>
+        <tr>
+            <td>Pump</td>
+            <td><input type="text" name="pumpStart" id="pumpStartId" value="20"></td>
+            <td><input type="text" name="pumpDuration" id="pumpDurationId" value="1"></td>
+            <td><p id="pumpStatusPin">-</p></td>
+        </tr>
+        </table>
+        <br>
+        <input type="submit" value="Submit">
+        <input type="reset" value="Clear Values">
+    </form><br>
+    <button href="pages/manualControl.html" onclick="systemStop()">To Manual Control</button><br><br>
+    <button onclick="systemStop()">STOP</button><br>
+    <h2 style="font-size:30pt;"id="ledPinStatus">-</h2><br>
+    <h3 style="font-size:30pt;"id="motorPinStatus">-</h3>
+    <h4 style="font-size:30pt;"id="valvePinStatus">-</h4>
+    <h5 style="font-size:30pt;"id="pumpPinStatus">-</h5>
+
+
+    
+</body>
+</html>
