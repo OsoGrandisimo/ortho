@@ -2,7 +2,7 @@
 <html>
 <head>
     <!-- This is the title displayed on the browser -->
-    <title>Swapp Orthodontics Ultrasonic Fluid Manager</title>
+    <title>Swapp Orthodontics Cleaning Manager</title>
     <!-- The script src below imports the socket.io library which is used for communication between the browser and BBBw -->
     <script src = "/socket.io/socket.io.js" > </script>
     <!-- This is the type of script that is going to be used (javascript) -->
@@ -26,24 +26,27 @@
         // This function processes updated pin values from the server
         function handlePinUpdate(message)
         {
-            alert("In handlePinUpdate");
             let data = JSON.parse(message);
-            alert("In handlePinUpdate");
+            
             if(data.pin == ledPin)
             {
-                $("#ledPinStatus").html("Pin " + ledPin + " Value: " + data[ledPin]);
+                if (data.value == 1){$("#ledPinStatus").html("Off");}
+                else {$("#ledPinStatus").html("On");}
             }
             else if(data.pin == motorPin)
             {
-                $("#motorPinStatus").html("Pin " + motorPin + " Value: " + data[motorPin]);
+                if (data.value == 1){$("#motorPinStatus").html("Off");}
+                else {$("#motorPinStatus").html("On");}
             }
             else if(data.pin == valvePin)
             {
-                $("#valvePinStatus").html("Pin " + valvePin + " Value: " + data[valvePin]);
+                if (data.value == 1){$("#valvePinStatus").html("Off");}
+                else {$("#valvePinStatus").html("On");}
             }
             else if(data.pin == pumpPin)
             {
-                $("#pumpPinStatus").html("Pin " + pumpPin + " Value: " + data[pumpPin]);
+                if (data.value == 1){$("#pumpPinStatus").html("Off");}
+                else {$("#pumpPinStatus").html("On");}
             }
         }
         
@@ -55,7 +58,6 @@
         {
             //socket.emit uses the socket.io library to send a message to the BBBw
             socket.emit('systemStop');
-            alert("Stopping System");
         }
         
         /** systemStart **/
@@ -80,8 +82,6 @@
                 motorStart: motorStart, motorDuration: motorDuration,
                 valveStart: valveStart, valveDuration: valveDuration,
                 pumpStart: pumpStart, pumpDuration: pumpDuration});
-            alert("Start system with LED Start Time " + ledStart);
-            alert("The pump duration is " + pumpDuration);
         }
         
     </script>
@@ -98,7 +98,7 @@
 </head> 
  
 <body>
-    <h1 style="font-size:30pt;">Ultrasonic Scheduler</h1>
+    <h1 style="font-size:30pt;">Cleaning Scheduler</h1>
     <!--<h2 style="font-size:30pt;"id="temp">-</h2>-->
     <!-- This is the device selection and enterable text box code -->
     <form onsubmit="systemStart()" id="deviceForm">
@@ -111,39 +111,34 @@
         </tr>
         <tr>
             <td>LEDs</td>
-            <td><input type="text" name="ledStart" id="ledStartId" value ="5"></td>
-            <td><input type="text" name="ledDuration" id="ledDurationId" value="15"></td>
-            <td><p id="ledStatusPin">-</p></td>
+            <td><input type="text" name="ledStart" id="ledStartId"></td>
+            <td><input type="text" name="ledDuration" id="ledDurationId"></td>
+            <td><h2 style="font-size:20pt;"id="ledPinStatus">-</h2></td>
         </tr>
         <tr>
             <td>Motor</td>
-            <td><input type="text" name="motorStart" id="motorStartId" value="0"></td>
-            <td><input type="text" name="motorDuration" id="motorDurationId" value="5"></td>
-            <td><p id="motorStatusPin">-</p></td>
+            <td><input type="text" name="motorStart" id="motorStartId"></td>
+            <td><input type="text" name="motorDuration" id="motorDurationId"></td>
+            <td><h3 style="font-size:20pt;"id="motorPinStatus">-</h3></td>
         </tr>
         <tr>
             <td>Valve</td>
-            <td><input type="text" name="valveStart" id="valveStartId" value="5"></td>
-            <td><input type="text" name="valveDuration" id="valveDurationId"value="0.5"></td>
-            <td><p id="valveStatusPin">-</p></td>
+            <td><input type="text" name="valveStart" id="valveStartId"></td>
+            <td><input type="text" name="valveDuration" id="valveDurationId"></td>
+            <td><h4 style="font-size:20pt;"id="valvePinStatus">-</h4></td>
         </tr>
         <tr>
             <td>Pump</td>
-            <td><input type="text" name="pumpStart" id="pumpStartId" value="20"></td>
-            <td><input type="text" name="pumpDuration" id="pumpDurationId" value="1"></td>
-            <td><p id="pumpStatusPin">-</p></td>
+            <td><input type="text" name="pumpStart" id="pumpStartId"></td>
+            <td><input type="text" name="pumpDuration" id="pumpDurationId"></td>
+            <td><h5 style="font-size:20pt;"id="pumpPinStatus">-</h5></td>
         </tr>
         </table>
         <br>
         <input type="submit" value="Submit">
         <input type="reset" value="Clear Values">
     </form><br>
-    <button href="pages/manualControl.html" onclick="systemStop()">To Manual Control</button><br><br>
     <button onclick="systemStop()">STOP</button><br>
-    <h2 style="font-size:30pt;"id="ledPinStatus">-</h2><br>
-    <h3 style="font-size:30pt;"id="motorPinStatus">-</h3>
-    <h4 style="font-size:30pt;"id="valvePinStatus">-</h4>
-    <h5 style="font-size:30pt;"id="pumpPinStatus">-</h5>
 
 
     

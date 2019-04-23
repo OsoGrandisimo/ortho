@@ -22,13 +22,21 @@ var ledPin = 'P8_8';
 var motorPin = 'P8_10';
 var valvePin = 'P8_12';
 var pumpPin = 'P8_14';
+var ledTimer;
+var motorTimer;
+var valveTimer;
+var pumpTimer;
+var ledOff;
+var motorOff;
+var valveOff;
+var pumpOff;
+
 // Used for monitoring pin states
 var pinStates = {};
 pinStates[ledPin]=1;
 pinStates[motorPin]=1;
 pinStates[valvePin]=1;
 pinStates[pumpPin]=1;
-
 
 /** html page to be used **/
 var htmlPage = 'index.html';
@@ -80,6 +88,20 @@ function handleSystemStop()
     b.digitalWrite('P8_10', b.HIGH);
     b.digitalWrite('P8_12', b.HIGH);
     b.digitalWrite('P8_14', b.HIGH);
+    pinStates[ledPin]=1;
+    pinStates[motorPin]=1;
+    pinStates[valvePin]=1;
+    pinStates[pumpPin]=1;
+    sendOutputs();
+    //clearing callbacks
+    clearTimeout(ledTimer);
+    clearTimeout(motorTimer);
+    clearTimeout(valveTimer);
+    clearTimeout(pumpTimer);
+    clearTimeout(ledOff);
+    clearTimeout(motorOff);
+    clearTimeout(valveOff);
+    clearTimeout(pumpOff);
 }
 
 /** handleSystemStart **/
@@ -112,25 +134,25 @@ function startComponent(device, duration)
     {
         b.digitalWrite(ledPin, b.LOW);
         pinStates[ledPin]=0;
-        setTimeout(stopComponent, duration*1000, 'led');
+        ledOff=setTimeout(stopComponent, duration*1000, 'led');
     }
     else if(device == 'motor')
     {
         b.digitalWrite(motorPin, b.LOW);
         pinStates[motorPin]=0;
-        setTimeout(stopComponent, duration*1000,'motor');
+        motorOff=setTimeout(stopComponent, duration*1000,'motor');
     }
     else if(device == 'valve')
     {
         b.digitalWrite(valvePin, b.LOW);
         pinStates[valvePin]=0;
-        setTimeout(stopComponent, duration*1000,'valve');
+        valveOff=setTimeout(stopComponent, duration*1000,'valve');
     }
     else if(device == 'pump')
     {
         b.digitalWrite(pumpPin, b.LOW);
         pinStates[pumpPin]=0;
-        setTimeout(stopComponent, duration*1000,'pump');
+        pumpOff=setTimeout(stopComponent, duration*1000,'pump');
     }
 }
 
